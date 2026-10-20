@@ -8,7 +8,7 @@ Order is by dependency: setup, then logic, then the page, then the site around i
 
 | Batch | Name | Status | Depends on | Blocked by |
 |---|---|---|---|---|
-| B0 | Scaffold and gates | Not started | None | Isaac confirms creating the public GitHub repo |
+| B0 | Scaffold and gates | Done 2026-10-20 except B0.6 | None | B0.6: Isaac connects Cloudflare and shares the preview URL (does not block B1) |
 | B1 | Readers and cleanups | Not started | B0 | Isaac captures real AI copies (5 minutes, see B1) |
 | B2 | Five writers | Not started | B1 | None |
 | B3 | Cleaner widget and page | Not started | B2 | None |
