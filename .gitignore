@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.astro/
+
+# Test output
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+coverage/
+
+# Environment (this repo is public; nothing should need one)
+.env
+.env.*
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+npm-debug.log*
