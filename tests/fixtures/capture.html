@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clipboard capture</title>
+<style>
+  :root { --ink: #1d1d1f; --muted: #5f6368; --line: #d0d4d9; --accent: #0b57d0; --bg: #fafafa; }
+  body { font: 16px/1.5 system-ui, sans-serif; color: var(--ink); background: var(--bg); max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  h1 { font-size: 1.4rem; }
+  ol li { margin-bottom: .4rem; }
+  .row { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
+  label { font-weight: 600; }
+  select, button { font: inherit; padding: .4rem .6rem; }
+  #target { border: 2px dashed var(--line); border-radius: 8px; padding: 2rem; text-align: center; color: var(--muted); }
+  #target:focus { outline: 3px solid var(--accent); outline-offset: 2px; }
+  #target.got { border-color: var(--accent); color: var(--ink); }
+  pre { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: .75rem; max-height: 220px; overflow: auto; white-space: pre-wrap; word-break: break-word; font-size: 13px; }
+  .prompt { background: #fff; border-left: 4px solid var(--accent); padding: .5rem .75rem; }
+  #status { font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Clipboard capture for test fixtures</h1>
+<p>This page saves exactly what an AI app puts on the clipboard, so the cleaner is tested against real copies. Nothing is sent anywhere, and the pasted HTML is shown as source text, never rendered.</p>
+
+<p>Ask each app this, or anything similar:</p>
+<p class="prompt">Give me a short plan for launching a small website. Use a heading, some bold text, a bulleted list, a numbered list, a link to https://example.com, a small table with three columns, and at least one em dash.</p>
+
+<ol>
+  <li>Pick the app and how you copied below.</li>
+  <li>Copy the reply: either the app's copy button, or select the whole reply with the mouse and press Ctrl+C.</li>
+  <li>Click the box below and press Ctrl+V.</li>
+  <li>Press Save. Move the downloaded file into <code>tests/fixtures/real/</code>.</li>
+</ol>
+<p>Six files in all: ChatGPT, Claude and Gemini, each copied both ways.</p>
+
+<div class="row">
+  <div><label for="source">App</label><br>
+    <select id="source">
+      <option value="chatgpt">ChatGPT</option>
+      <option value="claude">Claude</option>
+      <option value="gemini">Gemini</option>
+    </select>
+  </div>
+  <div><label for="method">How it was copied</label><br>
+    <select id="method">
+      <option value="copy-button">Copy button</option>
+      <option value="mouse-select">Selected with the mouse</option>
+    </select>
+  </div>
+</div>
+
+<div id="target" tabindex="0" role="textbox" aria-label="Paste here">Click here, then press Ctrl+V</div>
+
+<div class="row">
+  <button id="save" type="button" disabled>Save</button>
+  <span id="status" role="status"></span>
+</div>
+
+<h2>Clipboard types</h2>
+<pre id="types">Nothing pasted yet.</pre>
+<h2>text/html (as source)</h2>
+<pre id="html"></pre>
+<h2>text/plain</h2>
+<pre id="text"></pre>
+
+<script>
+  "use strict";
+  let captured = null;
+  const target = document.getElementById("target");
+  const save = document.getElementById("save");
+  const status = document.getElementById("status");
+
+  document.addEventListener("paste", (event) => {
+    event.preventDefault();
+    const data = event.clipboardData;
+    if (!data) return;
+    captured = {
+      source: document.getElementById("source").value,
+      method: document.getElementById("method").value,
+      capturedAt: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      types: Array.from(data.types),
+      html: data.getData("text/html"),
+      text: data.getData("text/plain"),
+    };
+    // textContent only: the paste is displayed as inert text, never parsed into this page.
+    document.getElementById("types").textContent = captured.types.join("\n") || "(none)";
+    document.getElementById("html").textContent = captured.html || "(no HTML on the clipboard)";
+    document.getElementById("text").textContent = captured.text || "(no plain text on the clipboard)";
+    target.textContent = "Captured " + captured.source + ", " + captured.method + ". Paste again to replace.";
+    target.classList.add("got");
+    save.disabled = false;
+    status.textContent = "";
+  });
+
+  save.addEventListener("click", () => {
+    if (!captured) return;
+    const name = captured.source + "-" + captured.method + ".json";
+    const blob = new Blob([JSON.stringify(captured, null, 2) + "\n"], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = name;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    status.textContent = "Saved " + name + ". Move it into tests/fixtures/real/.";
+  });
+</script>
+</body>
+</html>
