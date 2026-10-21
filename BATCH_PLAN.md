@@ -9,7 +9,7 @@ Order is by dependency: setup, then logic, then the page, then the site around i
 | Batch | Name | Status | Depends on | Blocked by |
 |---|---|---|---|---|
 | B0 | Scaffold and gates | Done 2026-10-20 except B0.6 | None | B0.6: Isaac connects Cloudflare and shares the preview URL (does not block B1) |
-| B1 | Readers and cleanups | Not started | B0 | Isaac captures real AI copies (5 minutes, see B1) |
+| B1 | Readers and cleanups | Partial 2026-10-21: B1.1 to B1.5 and the C1 and C2 adversarial tests done; golden tests from real captures remain | B0 | Isaac captures real AI copies (5 minutes, see B1). Blocks closing B1, so blocks B2 |
 | B2 | Five writers | Not started | B1 | None |
 | B3 | Cleaner widget and page | Not started | B2 | None |
 | B4 | Site shell, intent pages and SEO | Not started | B3 | None (final copy waits for Keyword Planner in B6) |
@@ -51,6 +51,8 @@ Tasks:
 Files: `src/lib/cleaner/types.ts`, `read-markdown.ts`, `read-html.ts`, `detect.ts`, `cleanups.ts`, `index.ts`, `tests/fixtures/*`, `tests/unit/read-*.test.ts`, `tests/unit/cleanups.test.ts`.
 
 Verification: rung 2. Golden and adversarial tests pass. The HTML reader runs under Vitest with a DOM environment (happy-dom or jsdom; this is a dev dependency decision to record).
+
+Remaining after session 2 (B1 finish): Isaac saves the six captures into `tests/fixtures/real/`. Then add `tests/unit/read-real.test.ts`: every capture reads without `html` or `image` nodes, keeps its heading, bold, list, link and table, and each app's copy-button and mouse-selected captures give the same tree shape (or the difference is recorded). Adjust `detect.ts` (D38) or `read-html.ts` if a capture misreads. Files: `tests/fixtures/real/*`, `tests/unit/read-real.test.ts`, and `src/lib/cleaner/detect.ts`, `read-html.ts` only if a fix is needed. Real JSON fixtures can be imported directly (no Node types needed).
 
 ## B2. Five writers
 
